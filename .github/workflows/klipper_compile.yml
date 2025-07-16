@@ -1,0 +1,36 @@
+name: Compile Klipper Firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git build-essential python3 python3-pip
+
+      - name: Install Klipper Dependencies
+        run: |
+          sudo pip3 install -r requirements.txt
+
+      - name: Configure Klipper
+        run: |
+          make menuconfig
+          make save_config
+
+      - name: Build Klipper Firmware
+        run: |
+          make
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: klipper-firmware
+          path: out/klipper.bin
